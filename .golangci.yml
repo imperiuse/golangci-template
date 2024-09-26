@@ -1,0 +1,280 @@
+run:
+  # Number of operating system threads (`GOMAXPROCS`) that can execute golangci-lint simultaneously.
+  concurrency: 8
+
+  timeout: 2m
+
+  # Exit code when at least one issue was found.
+  issues-exit-code: 1
+
+  # Include test files or not.
+  tests: false
+
+  modules-download-mode: readonly
+
+  # Allow multiple parallel golangci-lint instances running.
+  # If false, golangci-lint acquires file lock on start.
+  # Default: false
+  allow-parallel-runners: true
+
+  # Allow multiple golangci-lint instances running, but serialize them around a lock.
+  # If false, golangci-lint exits with an error if it fails to acquire file lock on start.
+  # Default: false
+  allow-serial-runners: false
+
+  # Define the Go version limit.
+  # Mainly related to generics support since go1.18.
+  # Default: use Go version from the go.mod file, fallback on the env var `GOVERSION`, fallback on 1.17
+  go: '1.22'
+
+linters-settings:
+  depguard:
+    rules:
+      logger:
+        deny:
+          # logging is allowed only by logutils.Log,
+          - pkg: "github.com/sirupsen/logrus"
+            desc: logging is allowed only by logutils.Log.
+          - pkg: "github.com/pkg/errors"
+            desc: Should be replaced by standard lib errors package.
+          - pkg: "github.com/instana/testify"
+            desc: It's a fork of github.com/stretchr/testify.
+        files:
+          # logrus is allowed to use only in logutils package.
+          - "!**/pkg/logutils/**.go"
+  dupl:
+    threshold: 100
+  funlen:
+    lines: -1 # the number of lines (code + empty lines) is not a right metric and leads to code without empty line or one-liner.
+    statements: 50
+  goconst:
+    min-len: 2
+    min-occurrences: 3
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport # https://github.com/go-critic/go-critic/issues/845
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+  gocyclo:
+    min-complexity: 15
+  cyclop:
+    max-complexity: 15
+  godox:
+    keywords:
+      - FIXME
+  gofmt:
+    rewrite-rules:
+      - pattern: 'interface{}'
+        replacement: 'any'
+  goimports:
+    local-prefixes: github.com/golangci/golangci-lint
+  mnd:
+    # don't include the "operation" and "assign"
+    checks:
+      - argument
+      - case
+      - condition
+      - return
+    ignored-numbers:
+      - '0'
+      - '1'
+      - '2'
+      - '3'
+    ignored-functions:
+      - strings.SplitN
+  govet:
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+    enable:
+      - nilness
+      - shadow
+  errorlint:
+    asserts: false
+  lll:
+    line-length: 140
+  misspell:
+    locale: US
+    ignore-words:
+      - "importas" # linter name
+  nolintlint:
+    allow-unused: false # report any unused nolint directives
+    require-explanation: true # require an explanation for nolint directives
+    require-specific: true # require nolint directives to be specific about which linter is being skipped
+  revive:
+    rules:
+      - name: indent-error-flow
+      - name: unexported-return
+        disabled: true
+      - name: unused-parameter
+      - name: unused-receiver
+  gosmopolitan:
+    # Allow and ignore `time.Local` usages.
+    #
+    # Default: false
+    allow-time-local: true
+
+linters: # https://golangci-lint.run/usage/linters/
+  disable-all: true
+  enable:
+    - gofumpt
+    - goimports
+    - mnd
+    - goconst
+    - funlen
+    - lll
+    - dupl
+    - dupword
+    - bodyclose
+    - copyloopvar
+    - depguard
+    - dogsled
+    - gocyclo
+    - errcheck
+    - unparam
+    - gochecknoinits
+    - gochecknoglobals
+    - gosec
+    - gocheckcompilerdirectives
+    - misspell
+    - noctx
+    - unused
+    - godox
+    - intrange
+    - nolintlint
+    - revive
+    - ineffassign
+    - nakedret
+    - stylecheck
+    - testifylint
+    - durationcheck
+    - goprintffuncname
+    - unconvert
+    - whitespace
+    - asasalint
+    - asciicheck
+    - bidichk
+    - canonicalheader
+    - containedctx
+    - decorder
+    - err113
+    - errcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exportloopref
+    - fatcontext
+    - forbidigo
+    - forcetypeassert
+    - gochecksumtype
+    - gocognit
+    - gocyclo
+    - godot
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - grouper
+    - importas
+    - inamedparam
+    - interfacebloat
+    - ireturn
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - musttag
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - nosprintfhostport
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - predeclared
+    - promlinter
+    - protogetter
+    - reassign
+    - rowserrcheck
+    - sloglint
+    - sqlclosecheck
+    - tenv
+    - testableexamples
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - usestdlibvars
+    - wastedassign
+    - zerologlint
+    - gosmopolitan
+    - cyclop
+    - copyloopvar
+    - gocritic
+    - gosimple
+    - govet
+    - contextcheck
+    - exhaustive
+    - exhaustruct
+    - spancheck
+    - nonamedreturns
+
+# DECIDE TO NOT USE
+#    - staticcheck # too long-running... have no idea what the problem...
+#    - wsl         # very holy-war
+#    - wrapcheck   # very holy-war
+#    - varnamelen  # very holy-war
+#    - tagliatelle # very holy-war
+#    - tagalign    # very holy-war
+
+issues:
+  exclude-dirs:
+    - vendor
+    - scripts
+    - docker
+    - /opt/homebrew/Cellar
+    - pkg/mod  # Exclude Go module cache to prevent linting dependencies
+
+  exclude-use-default: true
+  exclude-generated: strict
+
+  # https://golangci-lint.run/usage/false-positives/#default-exclusions
+  include:
+    - EXC0001
+    - EXC0002
+    - EXC0003
+    - EXC0004
+    - EXC0005
+    - EXC0006
+    - EXC0007
+    - EXC0008
+    - EXC0009
+    - EXC0010
+    - EXC0011
+    - EXC0012
+    - EXC0013
+    - EXC0014
+    - EXC0015
+
+  # Excluding configuration per-path, per-linter, per-text and per-source
+  exclude-rules:
+    - linters:
+        - stylecheck
+      text: "ST1000:"  # ST1000: at least one file in a package should have a package comment (stylecheck)
+
+    - path: (.+)_test\.go
+      linters:
+        - dupl
+        - mnd
+        - lll
